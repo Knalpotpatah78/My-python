@@ -14,25 +14,10 @@
     </style>
   </head>
   <body>
-    <h1>Python CRUD Web App</h1>
-    <p>Gunakan formulir ini untuk membuat data, lalu klik tombol refresh untuk melihat data terbaru.</p>
-    <div class="form-group">
-      <label>Name</label>
-      <input id="name" type="text" placeholder="Name" />
-    </div>
-    <div class="form-group">
-      <label>Email</label>
-      <input id="email" type="email" placeholder="Email" />
-    </div>
-    <div class="form-group">
-      <label>Phone</label>
-      <input id="phone" type="text" placeholder="Phone" />
-    </div>
-    <button onclick="createRecord()">Create record</button>
-    <button onclick="loadRecords()">Refresh records</button>
+    <h1>Python QR Code Generator</h1>
+    <p>Masukkan teks atau URL, lalu klik Generate QR Code.</p>
 
-    <div style="margin-top: 24px; padding: 16px; border: 1px solid #ddd; background: #fafafa;">
-      <h2>QR Code Generator</h2>
+    <div style="margin-top: 24px; padding: 16px; border: 1px solid #ddd; background: #fafafa; max-width: 600px;">
       <div class="form-group">
         <label>Text or URL</label>
         <input id="qrText" type="text" placeholder="Enter text or URL" />
@@ -41,47 +26,7 @@
       <div id="qrPreview" style="margin-top: 16px;"></div>
     </div>
 
-    <table>
-      <thead>
-        <tr><th>Name</th><th>Email</th><th>Phone</th><th>Actions</th></tr>
-      </thead>
-      <tbody id="records"></tbody>
-    </table>
-
     <script>
-      async function loadRecords() {
-        const response = await fetch('/api/records');
-        const records = await response.json();
-        const rows = records.map(record => `
-          <tr>
-            <td>${record.name}</td>
-            <td>${record.email}</td>
-            <td>${record.phone}</td>
-            <td><button onclick="deleteRecord('${record.id}')">Delete</button></td>
-          </tr>`).join('');
-        document.getElementById('records').innerHTML = rows;
-      }
-
-      async function createRecord() {
-        const name = document.getElementById('name').value;
-        const email = document.getElementById('email').value;
-        const phone = document.getElementById('phone').value;
-        await fetch('/api/records', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ name, email, phone }),
-        });
-        document.getElementById('name').value = '';
-        document.getElementById('email').value = '';
-        document.getElementById('phone').value = '';
-        loadRecords();
-      }
-
-      async function deleteRecord(id) {
-        await fetch('/api/records/' + id, { method: 'DELETE' });
-        loadRecords();
-      }
-
       async function generateQr() {
         const text = document.getElementById('qrText').value;
         const response = await fetch('/api/qrcode', {
@@ -96,8 +41,6 @@
           document.getElementById('qrPreview').innerHTML = `<p style="color: red;">${result.error || 'Failed to generate QR code'}</p>`;
         }
       }
-
-      loadRecords();
     </script>
   </body>
 </html>
