@@ -32,3 +32,20 @@ pip install qrcode[pil]
 python3 qr_generator.py
 ```
 
+## Web App with QR Code Generator
+
+The Flask web app includes CRUD endpoints and a simple web UI with QR code generation.
+
+Install Flask and run:
+
+```bash
+pip install flask qrcode[pil]
+python3 web_app.py
+```
+
+Open in browser:
+
+```bash
+http://localhost:5000
+```
+

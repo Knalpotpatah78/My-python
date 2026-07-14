@@ -1,0 +1,103 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Python CRUD Web App</title>
+    <style>
+      body { font-family: Arial, sans-serif; margin: 20px; }
+      table { border-collapse: collapse; width: 100%; margin-top: 20px; }
+      th, td { border: 1px solid #ddd; padding: 8px; }
+      th { background: #f4f4f4; }
+      input, button { padding: 8px; margin: 4px 0; width: 100%; box-sizing: border-box; }
+      .form-group { margin-bottom: 12px; }
+    </style>
+  </head>
+  <body>
+    <h1>Python CRUD Web App</h1>
+    <p>Gunakan formulir ini untuk membuat data, lalu klik tombol refresh untuk melihat data terbaru.</p>
+    <div class="form-group">
+      <label>Name</label>
+      <input id="name" type="text" placeholder="Name" />
+    </div>
+    <div class="form-group">
+      <label>Email</label>
+      <input id="email" type="email" placeholder="Email" />
+    </div>
+    <div class="form-group">
+      <label>Phone</label>
+      <input id="phone" type="text" placeholder="Phone" />
+    </div>
+    <button onclick="createRecord()">Create record</button>
+    <button onclick="loadRecords()">Refresh records</button>
+
+    <div style="margin-top: 24px; padding: 16px; border: 1px solid #ddd; background: #fafafa;">
+      <h2>QR Code Generator</h2>
+      <div class="form-group">
+        <label>Text or URL</label>
+        <input id="qrText" type="text" placeholder="Enter text or URL" />
+      </div>
+      <button onclick="generateQr()">Generate QR Code</button>
+      <div id="qrPreview" style="margin-top: 16px;"></div>
+    </div>
+
+    <table>
+      <thead>
+        <tr><th>Name</th><th>Email</th><th>Phone</th><th>Actions</th></tr>
+      </thead>
+      <tbody id="records"></tbody>
+    </table>
+
+    <script>
+      async function loadRecords() {
+        const response = await fetch('/api/records');
+        const records = await response.json();
+        const rows = records.map(record => `
+          <tr>
+            <td>${record.name}</td>
+            <td>${record.email}</td>
+            <td>${record.phone}</td>
+            <td><button onclick="deleteRecord('${record.id}')">Delete</button></td>
+          </tr>`).join('');
+        document.getElementById('records').innerHTML = rows;
+      }
+
+      async function createRecord() {
+        const name = document.getElementById('name').value;
+        const email = document.getElementById('email').value;
+        const phone = document.getElementById('phone').value;
+        await fetch('/api/records', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ name, email, phone }),
+        });
+        document.getElementById('name').value = '';
+        document.getElementById('email').value = '';
+        document.getElementById('phone').value = '';
+        loadRecords();
+      }
+
+      async function deleteRecord(id) {
+        await fetch('/api/records/' + id, { method: 'DELETE' });
+        loadRecords();
+      }
+
+      async function generateQr() {
+        const text = document.getElementById('qrText').value;
+        const response = await fetch('/api/qrcode', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ text }),
+        });
+        const result = await response.json();
+        if (result.data_uri) {
+          document.getElementById('qrPreview').innerHTML = `<img src="${result.data_uri}" alt="QR code" style="max-width: 200px;" />`;
+        } else {
+          document.getElementById('qrPreview').innerHTML = `<p style="color: red;">${result.error || 'Failed to generate QR code'}</p>`;
+        }
+      }
+
+      loadRecords();
+    </script>
+  </body>
+</html>
